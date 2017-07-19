@@ -88,21 +88,21 @@ defmodule URI do
 
   """
   @spec encode_query(term) :: binary
-  def encode_query(enumerable) do
-    Enum.map_join(enumerable, "&", &encode_kv_pair/1)
+  def encode_query(enumerable, encoder \\ &encode_www_form/1) do
+    Enum.map_join(enumerable, "&", encoder)
   end
 
-  defp encode_kv_pair({key, _}) when is_list(key) do
+  defp encode_kv_pair({key, _}, _encoder) when is_list(key) do
     raise ArgumentError, "encode_query/1 keys cannot be lists, got: #{inspect key}"
   end
 
-  defp encode_kv_pair({_, value}) when is_list(value) do
+  defp encode_kv_pair({_, value}, _encoder) when is_list(value) do
     raise ArgumentError, "encode_query/1 values cannot be lists, got: #{inspect value}"
   end
 
-  defp encode_kv_pair({key, value}) do
-    encode_www_form(Kernel.to_string(key)) <>
-      "=" <> encode_www_form(Kernel.to_string(value))
+  defp encode_kv_pair({key, value}, encoder) do
+    encoder.(Kernel.to_string(key)) <>
+      "=" <> encoder.(Kernel.to_string(value))
   end
 
   @doc """
