@@ -17,10 +17,14 @@ defmodule URITest do
     assert URI.encode_www_form("/\n+/ゆ") == "%2F%0A%2B%2F%E3%82%86"
   end
 
-  test "encode_query/1" do
+  @tag :encode_query
+  test "encode_query/1,2" do
     assert URI.encode_query([{:foo, :bar}, {:baz, :quux}]) == "foo=bar&baz=quux"
     assert URI.encode_query([{"foo", "bar"}, {"baz", "quux"}]) == "foo=bar&baz=quux"
     assert URI.encode_query([{"foo z", :bar}]) == "foo+z=bar"
+
+    assert URI.encode_query([{"foo z", :bar}], &to_string/1) == "foo z=bar"
+    assert URI.encode_query([{"foo z", :bar}], &URI.encode/1) == "foo%20z=bar"
 
     assert_raise ArgumentError, fn ->
       URI.encode_query([{"foo", 'bar'}])

@@ -89,7 +89,7 @@ defmodule URI do
   """
   @spec encode_query(term) :: binary
   def encode_query(enumerable, encoder \\ &encode_www_form/1) do
-    Enum.map_join(enumerable, "&", encoder)
+    Enum.map_join(enumerable, "&", &encode_kv_pair(&1, encoder))
   end
 
   defp encode_kv_pair({key, _}, _encoder) when is_list(key) do
